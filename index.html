@@ -3,19 +3,121 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>QR Code Generator</title>
+    <!-- QRCode.js Library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #f4f4f9;
+            margin: 0;
+        }
+        .container {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        #qrcode {
+            margin: 20px auto;
+            display: flex;
+            justify-content: center;
+        }
+        input[type="text"] {
+            width: 80%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            outline: none;
+        }
+        button {
+            padding: 10px 15px;
+            margin: 5px;
+            border: none;
+            border-radius: 4px;
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #downloadBtn {
+            background-color: #28a745;
+            display: none; /* Hidden until QR code is generated */
+        }
+        #downloadBtn:hover {
+            background-color: #218838;
+        }
+    </style>
 </head>
 <body>
-    <div id="qrcode"></div>
-    <input type="text" id="text">
-    <button onclick="makeCode()">Generate QR Code</button>
+
+    <div class="container">
+        <h2>Professional QR Code Generator</h2>
+        <input type="text" id="text" placeholder="Enter text or URL here...">
+        <br>
+        <button onclick="makeCode()">Generate QR Code</button>
+        <button id="downloadBtn" onclick="downloadQRCode()">Download QR Code</button>
+        <div id="qrcode"></div>
+    </div>
+
     <script>
-        var qrcode= new QRCode("qrcode");
-        var text=document.getElementById("text")
-        function makeCode(){
-            qrcode.makeCode(text.value);
+        var qrcodeContainer = document.getElementById("qrcode");
+        var textInput = document.getElementById("text");
+        var downloadBtn = document.getElementById("downloadBtn");
+
+        var qrcode = new QRCode(qrcodeContainer, {
+            width: 200,
+            height: 200,
+            colorDark: "#000000",
+            colorLight: "#ffffff",
+            correctLevel: QRCode.CorrectLevel.H
+        });
+
+        function makeCode() {
+            if (!textInput.value.trim()) {
+                alert("Please enter some text or URL!");
+                return;
+            }
+            qrcode.makeCode(textInput.value);
+
+            // Show download button after short delay to let canvas/image render
+            setTimeout(function() {
+                downloadBtn.style.display = "inline-block";
+            }, 300);
+        }
+
+        function downloadQRCode() {
+            var img = qrcodeContainer.querySelector("img");
+            var canvas = qrcodeContainer.querySelector("canvas");
+
+            let imageURL = "";
+
+            if (img && img.src) {
+                imageURL = img.src;
+            } else if (canvas) {
+                imageURL = canvas.toDataURL("image/png");
+            }
+
+            if (imageURL) {
+                var link = document.createElement("a");
+                link.href = imageURL;
+                link.download = "qrcode.png";
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
         }
     </script>
+
 </body>
 </html>
